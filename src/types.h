@@ -43,18 +43,39 @@ object_t *create_symbol(char*);
 object_t *create_string(char*);
 object_t *create_cons(object_t*, object_t*);
 
+object_t *car(object_t*);
+object_t *cdr(object_t*);
 
-#define is_type(type,val) ((val)->type == (type))
-#define is_fixnum(val)    (is_type(t_fixnum,(val)))
-#define is_boolean(val)   (is_type(t_boolean,(val)))
-#define is_character(val) (is_type(t_character,(val)))
-#define is_symbol(val)    (is_type(t_symbol,(val)))
-#define is_string(val)    (is_type(t_string,(val)))
-#define is_cons(val)      (is_type(t_cons,(val)))
+#define is_fixnum(val)    ((val)->type == t_fixnum)
+#define is_boolean(val)   ((val)->type == t_boolean)
+#define is_character(val) ((val)->type == t_character)
+#define is_symbol(val)    ((val)->type == t_symbol)
+#define is_string(val)    ((val)->type == t_string)
+#define is_cons(val)      ((val)->type == t_cons)
+
+bool nilp(object_t*);
+bool truep(object_t*);
+bool falsep(object_t*);
+bool quotep(object_t*);
+bool definep(object_t*);
+
+object_t *get_nil();
+object_t *get_true();
+object_t *get_false();
+object_t *get_quote();
+object_t *get_define();
+
+object_t *get_global_env();
 
 #define object_size sizeof(object_t)
 
+void initialize_types();
+void cleanup_types();
+
 void die(const char *msg);
 
+/* variables */
+void create_new_variable(object_t*, object_t*, object_t*);
+object_t *find_variable_value(object_t*, object_t*);
 
 #endif

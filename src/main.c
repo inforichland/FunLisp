@@ -14,7 +14,7 @@
 #include "types.h"
 
 int main() {
-  initialize_reader();
+  initialize_types();
   printf("This is the REPL! have fun\n\n");
 
   while (1) {
@@ -23,11 +23,11 @@ int main() {
     if (r->type == t_symbol && !strcmp(r->values.symbol.value, "quit"))
       break;
     else
-      write(eval(r));
+      write(eval(r, get_global_env()));
     printf("\n");
   }
 
-  cleanup_reader();
+  cleanup_types();
 
   printf("Goodbye!\n");
   return 0;

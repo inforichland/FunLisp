@@ -9,8 +9,4 @@ void cleanup_reader();
 
 object_t *read(FILE*);
 
-bool nilp(object_t*);
-bool truep(object_t*);
-bool falsep(object_t*);
-
 #endif

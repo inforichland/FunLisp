@@ -9,141 +9,8 @@
  * dealing w/ heap objects
  ********************************/
 
-unsigned int MAX_SYMBOLS = 100;
-
 /* prototype */
 object_t *read(FILE *f);
-
-object_t *create_object(type_t type) {
-  object_t *obj = malloc(object_size);
-  if (obj == NULL) die("Unable to allocate memory!");
-  
-  obj->type = type;
-  return obj;
-}
-
-/** static objects **/
-object_t *false_obj;
-object_t *true_obj;
-object_t *nil;
-object_t **symbol_table;
-
-object_t *create_fixnum(long val) { 
-  object_t *obj = create_object(t_fixnum);
-  obj->values.fixnum.value = val;
-  return obj;
-}
-
-object_t *create_boolean(char val) {
-  object_t *obj = create_object(t_boolean);
-  obj->values.boolean.value = val;
-  return obj;
-}
-
-object_t *create_character(char val) {
-  object_t *obj = create_object(t_character);
-  obj->values.character.value = val;
-  return obj;
-}
-
-object_t *lookup_symbol(char *val) {
-  if (symbol_table == NULL) return NULL;
-  
-  int i;
-  for (i = 0; i < MAX_SYMBOLS; i++) {
-    if (symbol_table[i] != NULL && 
-	!strcmp(symbol_table[i]->values.symbol.value, val)) 
-      return symbol_table[i];
-  }
-
-  return NULL;
-}
-
-object_t *create_symbol(char *val) {
-  object_t *tmp = lookup_symbol(val);
-  if (tmp == NULL) {
-    /* create the object */
-    object_t *obj = create_object(t_symbol);
-    obj->values.symbol.value = malloc(strlen(val) + 1);
-    if (obj->values.symbol.value == NULL)
-      die("Out of memory in create_symbol!\n");
-    strcpy(obj->values.symbol.value, val);
-
-    int i;
-    if (symbol_table == NULL) {
-      symbol_table = (object_t**) malloc(MAX_SYMBOLS * sizeof(object_t*));
-      for (i = 0; i < MAX_SYMBOLS; i++)
-	symbol_table[i] = NULL;
-    }
-
-    char added = FALSE;
-    for (i = 0; i < MAX_SYMBOLS; i++) {
-      if (symbol_table[i] == NULL) {
-	added = TRUE;
-	symbol_table[i] = obj;
-	break;
-      }
-    }
-
-    if (!added) {
-      // die("Symbol table full!");
-      unsigned int old = MAX_SYMBOLS;
-      MAX_SYMBOLS *= 2;
-      if (MAX_SYMBOLS < old) die("Symbol table full!");
-
-      symbol_table = (object_t**) realloc(symbol_table, MAX_SYMBOLS * sizeof(object_t*));
-      if (symbol_table == NULL)
-	die("Error realloc()-ing symbol table!");
-      return create_symbol(val);
-    } 
-    return obj;
-  } else 
-    return tmp;
-}
-
-object_t *create_string(char *val) {
-  object_t *obj = create_object(t_string);
-  obj->values.string.value = malloc(strlen(val) + 1);
-  if (obj->values.string.value == NULL)
-    die("Out of memory in create_string!\n");
-
-  strcpy(obj->values.string.value, val);
-  return obj;
-}
-
-object_t *create_cons(object_t *car, object_t *cdr) {
-  object_t *obj = create_object(t_cons);
-  obj->values.cons.car = car;
-  obj->values.cons.cdr = cdr;
-  return obj;
-}
-
-void initialize_reader() {  
-  false_obj = create_boolean(FALSE);
-  true_obj = create_boolean(TRUE);
-  nil = create_cons(NULL,NULL);
-}
-
-void cleanup_reader() {
-  /* clean up symbol table */
-  int i;
-  for(i = 0; i < MAX_SYMBOLS; i++) {
-    if (symbol_table[i] != NULL) {
-      free(symbol_table[i]);
-    }
-  }
-  free(symbol_table);
-}
-
-#define is_p(name,obj) bool name(object_t *o) { return (o == obj); }
-
-is_p(nilp,nil);
-is_p(truep,true_obj);
-is_p(falsep,false_obj);
-
-/* bool nilp(object_t *obj) { return (obj == nil); } */
-/* bool truep(object_t *obj) { return (obj == true_obj); } */
-/* bool falsep(object_t *obj) { return (obj == false_obj); } */
 
 /************************************
  * reader 
@@ -217,9 +84,9 @@ object_t *read_character(FILE *f) {
     c = getc(f);
     switch (c) {
       case 'f': 
-	return false_obj;
+	return get_false();
       case 't':
-	return true_obj;
+	return get_true();
       case '\\':
 	c = getc(f);
 	switch (c) {
@@ -320,7 +187,7 @@ object_t *read_cons(FILE *f) {
   int c = getc(f);
   object_t *car, *cdr;
 
-  if (c == ')') return nil;
+  if (c == ')') return get_nil();
   ungetc(c,f);
 
   car = read(f);
@@ -363,8 +230,10 @@ object_t *read(FILE *f) {
     return read_symbol(f);
   } else if (c == '(') {
     return read_cons(f);
+  } else if (c == '\'') {
+    return create_cons(get_quote(), create_cons(read(f), get_nil()));
   } else {
-    die("Bad input!");
+    die("Bad input!\n");
   }
   die("Invalid read state!\n");
   return NULL;
