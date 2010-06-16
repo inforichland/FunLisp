@@ -155,17 +155,16 @@ object_t *find_variable_value(object_t *var, object_t *env) {
     frame = car(env);
     vars = frame_vars(frame);
     vals = frame_vals(frame);
-    while (var != get_nil()) {
-      if (var == car(vars))
+    while (vars != get_nil()) {
+      if (var == car(vars)) {
 	return car(vals);
-
+      }
+      
       vars = cdr(vars);
       vals = cdr(vals);
     }
     env = parent_env(env);
   }
-
-  die("Variable not bound!\n");
 
   return NULL;
 }

@@ -22,8 +22,14 @@ int main() {
     object_t *r = read(stdin);
     if (r->type == t_symbol && !strcmp(r->values.symbol.value, "quit"))
       break;
-    else
-      write(eval(r, get_global_env()));
+    else{
+      object_t *result = eval(r, get_global_env());
+      if (result == NULL) {
+	printf("Unbound symbol!\n");
+      } else {
+	write(result);
+      }
+    }
     printf("\n");
   }
 
