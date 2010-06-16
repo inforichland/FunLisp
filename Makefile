@@ -11,4 +11,5 @@ clean:
 	$(CC) $(CFLAGS) -c $<
 
 compiler: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o compiler
+	$(CC) $(CFLAGS) $(OBJECTS) -o ../bin/compiler
+
