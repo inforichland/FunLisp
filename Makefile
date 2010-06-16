@@ -1,15 +1,14 @@
-CC=gcc
-CFLAGS=-O3 -g -Wall -Werror
-OBJECTS= main.o reader.o writer.o eval.o types.o
+SRCDIR=src/
 
-all: compiler
+SUBDIRS=$(SRCDIR)
+
+all: 	
+	for i in $(SUBDIRS) ; do \
+	( cd $$i ; make ) ; \
+	done
 
 clean:
-	rm compiler *.o *.~ *#
-
-%.o : %.c
-	$(CC) $(CFLAGS) -c $<
-
-compiler: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o ../bin/compiler
-
+	rm -f *~
+	for i in $(SUBDIRS) ; do \
+	( cd $$i ; make clean ) ; \
+	done
