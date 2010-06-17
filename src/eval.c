@@ -35,9 +35,14 @@ object_t *eval(object_t *exp, object_t *env) {
   if (definition(exp)) {
     object_t *symb = car(cdr(exp)),
       *val = car(cdr(cdr(exp)));
-    create_new_variable(symb,
-			eval(val, env),
-			env);
+    
+    if (val == NULL) {
+      create_new_variable(symb, get_nil(), env);
+    } else {
+      create_new_variable(symb,
+			  eval(val, env),
+			  env);
+    }
     return symb;
   }
 
