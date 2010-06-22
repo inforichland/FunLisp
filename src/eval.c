@@ -4,15 +4,17 @@
  * evaluation 
  *********************************/
 
-bool evaluate_to_self(type_t t) {
-  switch (t) {
+object_t *eval(object_t*, object_t*);
+
+bool evaluate_to_self(object_t *exp) {
+  switch (exp->type) {
     case t_boolean:
     case t_fixnum:
     case t_character:
     case t_string:
       return TRUE;
     default:
-      return FALSE;
+      if (nilp(exp)) return TRUE;
   }
   return FALSE;
 }
@@ -25,14 +27,31 @@ bool definition(object_t *exp) {
   return (is_cons(exp) && definep(car(exp)));
 }
 
+bool function(object_t *exp) {
+  return (is_cons(exp) && !nilp(exp) &&
+	  car(exp)->type == t_symbol);
+}
+
+
+object_t *make_arguments(object_t *args, object_t *env) {
+  if (nilp(args)) { 
+    return get_nil();
+  } else {
+    return create_cons(eval(car(args), env),
+		       make_arguments(cdr(args), env));
+  }
+}
+
 object_t *eval(object_t *exp, object_t *env) { 
-  if (evaluate_to_self(exp->type)) 
-    return exp;
+  object_t *ret = NULL;
   
-  if (quoted(exp)) 
-    return car(cdr(exp));
-  
-  if (definition(exp)) {
+  if (evaluate_to_self(exp)) {
+    ret = exp;
+  }
+  else if (quoted(exp)) {
+    ret = car(cdr(exp));
+  }
+  else if (definition(exp)) {
     object_t *symb = car(cdr(exp)),
       *val = car(cdr(cdr(exp)));
     
@@ -43,14 +62,28 @@ object_t *eval(object_t *exp, object_t *env) {
 			  eval(val, env),
 			  env);
     }
-    return symb;
+    ret = symb;
   }
+  else if (is_symbol(exp)) {
+    //printf("\nfound symbol: %s\n\n", exp->values.symbol.value);
+    ret = find_variable_value(exp, env);
+  }
+  else if (function(exp)) {
+    object_t *arguments = make_arguments(cdr(exp), env);
+    object_t *func = eval(car(exp), env);
 
-  if (is_symbol(exp)) {
-    return find_variable_value(exp, env);
+    if (func == NULL || func == get_nil() ||
+	func->type != t_primitive) {
+      fprintf(stderr, "func: %d\n", (unsigned int)func);
+      fprintf(stderr, "type: %d\n", func->type);
+      die("Not a primitive!\n");
+    } else {
+      ret = (func->values.primitive.function)(arguments);
+    }
+  }
+  else {
+    die("Can't eval!\n");
   }
   
-  die("Can't eval!\n");
-  
-  return NULL;
+  return ret;
 }

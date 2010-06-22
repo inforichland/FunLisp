@@ -156,12 +156,18 @@ object_t *read_string(FILE *f) {
   return NULL;
 }
 
+bool is_symbol_char(char c) {
+  return (isalpha(c) || c == '+' || c == '-' ||
+	  c == '*' || c == '/' || c == '!' ||
+	  c == '^' || c == '_' || c == '?') ;
+}
+
 object_t *read_symbol(FILE *f) {
   int c = getc(f), i = 0;
   char buffer[MAX_SYMBOL_LENGTH];
 
-  if (isalpha(c)) {
-    while (isalpha(c) || c == '_') {
+  if (is_symbol_char(c)) {
+    while (is_symbol_char(c)) {
       if (i < MAX_SYMBOL_LENGTH - 1) {
 	buffer[i++] = c;
 	c = getc(f);
@@ -225,7 +231,7 @@ object_t *read(FILE *f) {
   } else if (c == '"') {
     ungetc(c,f);
     return read_string(f);
-  } else if (isalpha(c)) {
+  } else if (is_symbol_char(c)) {
     ungetc(c,f);
     return read_symbol(f);
   } else if (c == '(') {

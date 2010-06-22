@@ -18,6 +18,8 @@ typedef enum {
   t_symbol,
   t_string,
   t_cons,
+  t_primitive,
+  t_function,
 } type_t;
 
 typedef struct object_t {
@@ -32,8 +34,17 @@ typedef struct object_t {
       struct object_t *car;
       struct object_t *cdr;
     } cons;
+    struct { struct object_t *(*function)(struct object_t *arguments); } primitive;
+    struct { 
+      struct object_t *body;
+      struct object_t *env;
+      struct object_t *args;
+    } function;
   } values;
 } object_t;
+
+/* function type */
+typedef object_t *(*primitive)(object_t *arguments);
 
 object_t *create_object(type_t);
 object_t *create_fixnum(long);
@@ -42,9 +53,12 @@ object_t *create_character(char);
 object_t *create_symbol(char*);
 object_t *create_string(char*);
 object_t *create_cons(object_t*, object_t*);
+object_t *create_primitive(primitive);
 
 object_t *car(object_t*);
 object_t *cdr(object_t*);
+
+void make_primitive(object_t*, primitive);
 
 #define is_fixnum(val)    ((val)->type == t_fixnum)
 #define is_boolean(val)   ((val)->type == t_boolean)

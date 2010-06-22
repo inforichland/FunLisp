@@ -19,6 +19,7 @@ object_t *true_obj;
 object_t *nil;
 object_t *quote;
 object_t *define;
+object_t *lambda;
 object_t **symbol_table;
 
 /* environments */
@@ -133,6 +134,12 @@ object_t *create_cons(object_t *car, object_t *cdr) {
   return obj;
 }
 
+object_t *create_primitive(primitive p) {
+  object_t *obj = create_object(t_primitive);
+  obj->values.primitive.function = p;
+  return obj;
+}
+
 object_t *car(object_t *obj) { return obj->values.cons.car; }
 object_t *cdr(object_t *obj) { return obj->values.cons.cdr; }
 
@@ -226,10 +233,18 @@ void initialize_types() {
   nil = create_cons(NULL,NULL);
   quote = create_symbol("quote");
   define = create_symbol("define");
+  lambda = create_symbol("lambda");
+
+  nil->values.cons.car = nil;
+  nil->values.cons.cdr = nil;
 
   empty_env = nil;
   
   global_env = extend(nil, nil, empty_env);
+}
+
+void make_primitive(object_t *name, primitive p) {
+  create_new_variable(name, create_primitive(p), global_env);
 }
 
 void die(const char *msg) {

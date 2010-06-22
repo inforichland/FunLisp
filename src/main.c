@@ -12,9 +12,12 @@
 #include "writer.h"
 #include "eval.h"
 #include "types.h"
+#include "primitives.h"
 
 int main() {
   initialize_types();
+  create_primitives();
+  
   printf("This is the REPL! have fun\n\n");
 
   while (1) {

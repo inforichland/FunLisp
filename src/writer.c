@@ -72,7 +72,11 @@ void write(object_t *obj) {
 	printf(")");
       }
       break;
+    case t_primitive:
+      printf("<primitive>");
+      break;
     default:
-      die("Unknown type (can't write)");
+      fprintf(stderr, "Unknown type (can't write) (type: %d)", obj->type);
+      exit(1);
   }
 }
