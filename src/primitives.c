@@ -47,8 +47,33 @@ object_t *prim_sub(object_t *arguments) {
   return create_fixnum(result);
 }
 
+object_t *prim_mul(object_t *arguments) {
+  long result = 1;
+
+  while (!nilp(arguments)) {
+    result *= (car(arguments))->values.fixnum.value;
+    arguments = cdr(arguments);
+  }
+
+  return create_fixnum(result);
+}
+
 object_t *prim_fixnump(object_t *arguments) {
   if (car(arguments)->type == t_fixnum)
+    return get_true();
+  else
+    return get_false();
+}
+
+object_t *prim_characterp(object_t *arguments) {
+  if (car(arguments)->type == t_character)
+    return get_true();
+  else
+    return get_false();
+}
+
+object_t *prim_booleanp(object_t *arguments) {
+  if (car(arguments)->type == t_boolean)
     return get_true();
   else
     return get_false();
@@ -68,8 +93,16 @@ object_t *prim_stringp(object_t *arguments) {
     return get_false();
 }
 
+object_t *prim_consp(object_t *arguments) {
+  if (car(arguments)->type == t_cons)
+    return get_true();
+  else
+    return get_false();
+}
+
 object_t *prim_functionp(object_t *arguments) {
-  if (car(arguments)->type == t_primitive)
+  if (car(arguments)->type == t_primitive ||
+      car(arguments)->type == t_function)
     return get_true();
   else
     return get_false();
@@ -81,8 +114,12 @@ void create_primitives() {
   make_primitive(create_symbol("cons"), prim_cons);
   make_primitive(create_symbol("+"), prim_add);
   make_primitive(create_symbol("-"), prim_sub);
+  make_primitive(create_symbol("*"), prim_mul);
   make_primitive(create_symbol("fixnum?"), prim_fixnump);
+  make_primitive(create_symbol("character?"), prim_characterp);
+  make_primitive(create_symbol("boolean?"), prim_booleanp);
   make_primitive(create_symbol("symbol?"), prim_symbolp);
   make_primitive(create_symbol("string?"), prim_stringp);
+  make_primitive(create_symbol("cons?"), prim_consp);
   make_primitive(create_symbol("function?"), prim_functionp);
 }

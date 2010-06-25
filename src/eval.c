@@ -42,6 +42,10 @@ object_t *make_arguments(object_t *args, object_t *env) {
   }
 }
 
+bool maybe_eval_to_function(object_t *exp) {
+  return (is_cons(car(exp)));
+}
+
 object_t *eval(object_t *exp, object_t *env) { 
   object_t *ret = NULL;
   
@@ -79,6 +83,16 @@ object_t *eval(object_t *exp, object_t *env) {
       die("Not a primitive!\n");
     } else {
       ret = (func->values.primitive.function)(arguments);
+    }
+  } else if (maybe_eval_to_function(exp)) {
+    object_t *c = car(exp);
+    object_t *func = eval(c, env);
+    if (!(func == NULL || nilp(func))) {
+      object_t *arguments = make_arguments(cdr(exp), env);
+      ret = (func->values.primitive.function)(arguments);
+    }
+    else {
+      die("Not a function!\n");
     }
   }
   else {
