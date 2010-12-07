@@ -60,52 +60,52 @@ object_t *prim_mul(object_t *arguments) {
 
 object_t *prim_fixnump(object_t *arguments) {
   if (car(arguments)->type == t_fixnum)
-    return get_true();
+    return true_obj;
   else
-    return get_false();
+    return false_obj;
 }
 
 object_t *prim_characterp(object_t *arguments) {
   if (car(arguments)->type == t_character)
-    return get_true();
+    return true_obj;
   else
-    return get_false();
+    return false_obj;
 }
 
 object_t *prim_booleanp(object_t *arguments) {
   if (car(arguments)->type == t_boolean)
-    return get_true();
+    return true_obj;
   else
-    return get_false();
+    return false_obj;
 }
 
 object_t *prim_symbolp(object_t *arguments) {
   if (car(arguments)->type == t_symbol)
-    return get_true();
+    return true_obj;
   else
-    return get_false();
+    return false_obj;
 }
 
 object_t *prim_stringp(object_t *arguments) {
   if (car(arguments)->type == t_string)
-    return get_true();
+    return true_obj;
   else
-    return get_false();
+    return false_obj;
 }
 
 object_t *prim_consp(object_t *arguments) {
   if (car(arguments)->type == t_cons)
-    return get_true();
+    return true_obj;
   else
-    return get_false();
+    return false_obj;
 }
 
 object_t *prim_functionp(object_t *arguments) {
   if (car(arguments)->type == t_primitive ||
       car(arguments)->type == t_function)
-    return get_true();
+    return true_obj;
   else
-    return get_false();
+    return false_obj;
 }
 
 void create_primitives() {

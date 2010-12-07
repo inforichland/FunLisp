@@ -22,11 +22,11 @@ int main() {
 
   while (1) {
     printf("repl> ");
-    object_t *r = read(stdin);
-    if (r->type == t_symbol && !strcmp(r->values.symbol.value, "quit"))
+    object_t *obj = read(stdin);
+    if (obj->type == t_symbol && !strcmp(obj->values.symbol.value, "quit"))
       break;
     else{
-      object_t *result = eval(r, get_global_env());
+      object_t *result = eval(obj, get_global_env());
       if (result == NULL) {
 	printf("Unbound symbol!\n");
       } else {

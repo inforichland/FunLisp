@@ -14,8 +14,7 @@ object_t *create_object(type_t type) {
 }
 
 /** static objects **/
-object_t *false_obj;
-object_t *true_obj;
+object_t *true_obj, *false_obj;
 object_t *nil;
 object_t *quote;
 object_t *define;
@@ -88,11 +87,15 @@ object_t *create_symbol(char *val) {
     int i;
     if (symbol_table == NULL) {
       symbol_table = (object_t**) malloc(MAX_SYMBOLS * sizeof(object_t*));
+      if (symbol_table == NULL) {
+	die("Out of memory in create_symbol!\n");
+      }
+
       for (i = 0; i < MAX_SYMBOLS; i++)
 	symbol_table[i] = NULL;
     }
 
-    char added = FALSE;
+    bool added = FALSE;
     for (i = 0; i < MAX_SYMBOLS; i++) {
       if (symbol_table[i] == NULL) {
 	added = TRUE;

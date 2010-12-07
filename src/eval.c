@@ -32,7 +32,6 @@ bool function(object_t *exp) {
 	  car(exp)->type == t_symbol);
 }
 
-
 object_t *make_arguments(object_t *args, object_t *env) {
   if (nilp(args)) { 
     return get_nil();
@@ -79,7 +78,7 @@ object_t *eval(object_t *exp, object_t *env) {
     if (func == NULL || func == get_nil() ||
 	func->type != t_primitive) {
       fprintf(stderr, "func: %d\n", (unsigned int)func);
-      fprintf(stderr, "type: %d\n", func->type);
+      //fprintf(stderr, "type: %d\n", func->type);
       die("Not a primitive!\n");
     } else {
       ret = (func->values.primitive.function)(arguments);
