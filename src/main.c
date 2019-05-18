@@ -14,30 +14,32 @@
 #include "types.h"
 #include "primitives.h"
 
-int main() {
-  initialize_types();
-  create_primitives();
+int main()
+{
+        initialize_types();
+        create_primitives();
   
-  printf("This is the REPL! have fun\n\n");
+        printf("This is the REPL! have fun\n\n");
 
-  while (1) {
-    printf("repl> ");
-    object_t *obj = read(stdin);
-    if (obj->type == t_symbol && !strcmp(obj->values.symbol.value, "quit"))
-      break;
-    else{
-      object_t *result = eval(obj, get_global_env());
-      if (result == NULL) {
-	printf("Unbound symbol!\n");
-      } else {
-	write(result);
-      }
-    }
-    printf("\n");
-  }
+        while (1) {
+                printf("repl> ");
+                object_t *obj = read(stdin);
+                if (obj->type == t_symbol && !strcmp(obj->values.symbol.value, "quit")) {
+                        break;
+                } else {
+                        object_t *result = eval(obj, get_global_env());
+                        if (result == NULL) {
+                                printf("Unbound symbol!\n");
+                        } else {
+                                write(result);
+                        }
+                }
+                
+                printf("\n");
+        }
 
-  cleanup_types();
+        cleanup_types();
 
-  printf("Goodbye!\n");
-  return 0;
+        printf("Goodbye!\n");
+        return 0;
 }

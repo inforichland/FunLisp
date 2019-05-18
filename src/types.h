@@ -11,36 +11,41 @@
 
 typedef char bool;
 
-typedef enum {
-  t_fixnum,
-  t_character,
-  t_boolean,
-  t_symbol,
-  t_string,
-  t_cons,
-  t_primitive,
-  t_function,
+typedef enum
+{
+        t_fixnum,
+        t_character,
+        t_boolean,
+        t_symbol,
+        t_string,
+        t_cons,
+        t_primitive,
+        t_function,
 } type_t;
 
-typedef struct object_t {
-  type_t type;
-  union {
-    struct { long value; } fixnum;
-    struct { char value; } character;
-    struct { bool value; } boolean;
-    struct { char *value; } symbol;
-    struct { char *value; } string;
-    struct { 
-      struct object_t *car;
-      struct object_t *cdr;
-    } cons;
-    struct { struct object_t *(*function)(struct object_t *arguments); } primitive;
-    struct { 
-      struct object_t *body;
-      struct object_t *env;
-      struct object_t *args;
-    } function;
-  } values;
+typedef struct object_t
+{
+        type_t type;
+        union
+        {
+                struct { long value; } fixnum;
+                struct { char value; } character;
+                struct { bool value; } boolean;
+                struct { char *value; } symbol;
+                struct { char *value; } string;
+                struct
+                { 
+                        struct object_t *car;
+                        struct object_t *cdr;
+                } cons;
+                struct { struct object_t *(*function)(struct object_t *arguments); } primitive;
+                struct
+                {
+                        struct object_t *body;
+                        struct object_t *env;
+                        struct object_t *args;
+                } function;
+        } values;
 } object_t;
 
 /* function type */
@@ -85,7 +90,6 @@ object_t *get_define();
 object_t *get_global_env();
 
 #define object_size sizeof(object_t)
-
 
 /* miscellaneous */
 void initialize_types();
