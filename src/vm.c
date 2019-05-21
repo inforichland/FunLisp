@@ -40,9 +40,7 @@ static struct reg regs[REG_COUNT];
 struct instruction {
         enum ops op;
         union {
-                struct { enum regs r1; enum regs r2; };
-                struct { enum regs r3; object_t *sym; };
-                /*
+
                 struct { enum regs r1; enum regs r2; }  swap;
                 struct { enum regs r1; enum regs r2; }  car;
                 struct { enum regs r1; enum regs r2; }  cdr;
@@ -54,7 +52,6 @@ struct instruction {
                 struct { enum regs r1; enum regs r2; }  cons;
                 struct { enum regs r1; enum regs r2; }  push;
                 struct { enum regs r1; enum regs r2; }  pop;
-                */
         };
 };
 
@@ -73,6 +70,7 @@ void execute(const struct instruction *i)
                 break;
         case op_car:
                 tmp.value = regs[i->car.r2].value;
+                break;
         default:
                 die("Unhandled op");
                 break;
@@ -83,7 +81,7 @@ void execute(const struct instruction *i)
 int main(void)
 {
         initialize_types();
-        
+
         object_t *foo = create_symbol("foo");
         object_t *bar = create_symbol("bar");
 
@@ -93,15 +91,15 @@ int main(void)
                 [2] = { .op = op_swap, .swap.r1 = reg0, .swap.r2 = reg1 },
         };
 
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < 2; ++i) {
                 execute(&ops[i]);
         }
 
-        printf("reg0: ");
-        write(regs[reg0].value);
-        printf("\nreg1: ");
-        write(regs[reg1].value);
-        printf("\n");
-        
+        for (int i = 0; i < 2; ++i) {
+                printf("reg%d: ", i);
+                write(regs[i].value);
+                puts("\n");
+        }
+
         cleanup_types();
 }
