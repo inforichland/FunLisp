@@ -12,8 +12,8 @@
 
 void write_cons(object_t *obj)
 {
-        object_t *car = obj->values.cons.car;
-        object_t *cdr = obj->values.cons.cdr;
+        object_t *car = obj->cons.car;
+        object_t *cdr = obj->cons.cdr;
         write(car);
 
         if (nilp(cdr)) {
@@ -31,11 +31,11 @@ void write(object_t *obj)
 {
         switch (obj->type) {
         case t_fixnum:
-                printf("%ld", obj->values.fixnum.value);
+                printf("%ld", obj->fixnum.value);
                 break;
         case t_character:
                 printf("#\\");
-                switch (obj->values.character.value) {
+                switch (obj->character.value) {
                 case '\n':
                         printf("newline");
                         break;
@@ -46,7 +46,7 @@ void write(object_t *obj)
                         printf("tab");
                         break;
                 default:
-                        printf("%c", obj->values.character.value);
+                        printf("%c", obj->character.value);
                         break;
                 }
                 break;
@@ -59,10 +59,10 @@ void write(object_t *obj)
                         die("wtf boolean!");
                 break;
         case t_string:
-                printf("\"%s\"\n", obj->values.string.value);
+                printf("\"%s\"\n", obj->string.value);
                 break;
         case t_symbol:
-                printf("%s", obj->values.symbol.value);
+                printf("%s", obj->symbol.value);
                 break;
         case t_cons:
                 if (nilp(obj))

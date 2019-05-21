@@ -45,18 +45,17 @@ typedef struct object_t
                         struct object_t *env;
                         struct object_t *args;
                 } function;
-        } values;
+        };
 } object_t;
 
 /* function type */
 typedef object_t *(*primitive)(object_t *arguments);
 
 /* creating new objects */
-object_t *create_object(type_t);
 object_t *create_fixnum(long);
 object_t *create_boolean(bool);
 object_t *create_character(char);
-object_t *create_symbol(char*);
+object_t *create_symbol(const char*);
 object_t *create_string(char*);
 object_t *create_cons(object_t*, object_t*);
 object_t *create_primitive(primitive);
@@ -81,19 +80,19 @@ bool definep(object_t*);
 
 extern object_t *false_obj;
 extern object_t *true_obj;
-object_t *get_nil();
-object_t *get_true();
-object_t *get_false();
-object_t *get_quote();
-object_t *get_define();
+object_t *get_nil(void);
+object_t *get_true(void);
+object_t *get_false(void);
+object_t *get_quote(void);
+object_t *get_define(void);
 
-object_t *get_global_env();
+object_t *get_global_env(void);
 
 #define object_size sizeof(object_t)
 
 /* miscellaneous */
-void initialize_types();
-void cleanup_types();
+void initialize_types(void);
+void cleanup_types(void);
 void die(const char *msg);
 
 /* variables */

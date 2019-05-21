@@ -36,6 +36,9 @@ enum regs {
 };
 
 static struct reg regs[REG_COUNT];
+static const char *NIL = "nil";
+static const object_t nil_ = { t_symbol, NIL };
+static const object_t * const nil = &nil_;
 
 struct instruction {
         enum ops op;
@@ -78,6 +81,9 @@ void execute(const struct instruction *i)
 }
 
 /* gcc -std=gnu11 vm.c writer.c types.c -g*/
+#define ASSIGNSYM(reg_, sym_) { .op = op_assignsym, .assignsym.r1 = (reg_), .assignsym.sym = (sym_) }
+#define SWAP(reg1_, reg2_) { .op = op_swap, .swap.r1 = (reg1_), .swap.r2 = (reg2_) }
+
 int main(void)
 {
         initialize_types();
@@ -86,19 +92,19 @@ int main(void)
         object_t *bar = create_symbol("bar");
 
         struct instruction ops[3] = {
-                [0] = { .op = op_assignsym, .assignsym.r1 = reg0, .assignsym.sym = foo },
-                [1] = { .op = op_assignsym, .assignsym.r1 = reg1, .assignsym.sym = bar },
-                [2] = { .op = op_swap, .swap.r1 = reg0, .swap.r2 = reg1 },
+                [0] = ASSIGNSYM(reg0, foo),
+                [1] = ASSIGNSYM(reg1, bar),
+                [2] = SWAP(reg0, reg1),
         };
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 3; ++i) {
                 execute(&ops[i]);
         }
 
         for (int i = 0; i < 2; ++i) {
                 printf("reg%d: ", i);
                 write(regs[i].value);
-                puts("\n");
+                printf("\n");
         }
 
         cleanup_types();

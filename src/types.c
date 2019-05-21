@@ -52,25 +52,25 @@ get_obj(get_define,define);
 object_t *create_fixnum(long val)
 {
         object_t *obj = create_object(t_fixnum);
-        obj->values.fixnum.value = val;
+        obj->fixnum.value = val;
         return obj;
 }
 
 object_t *create_boolean(char val)
 {
         object_t *obj = create_object(t_boolean);
-        obj->values.boolean.value = val;
+        obj->boolean.value = val;
         return obj;
 }
 
 object_t *create_character(char val)
 {
         object_t *obj = create_object(t_character);
-        obj->values.character.value = val;
+        obj->character.value = val;
         return obj;
 }
 
-object_t *lookup_symbol(char *val)
+object_t *lookup_symbol(const char *val)
 {
         int i;
 
@@ -79,24 +79,24 @@ object_t *lookup_symbol(char *val)
 
         for (i = 0; i < MAX_SYMBOLS; i++) {
                 if (symbol_table[i] != NULL && 
-                    !strcmp(symbol_table[i]->values.symbol.value, val)) 
+                    !strcmp(symbol_table[i]->symbol.value, val)) 
                         return symbol_table[i];
         }
 
         return NULL;
 }
 
-object_t *create_symbol(char *val)
+object_t *create_symbol(const char *val)
 {
         object_t *tmp = lookup_symbol(val);
 
         if (tmp == NULL) {
                 /* create the object */
                 object_t *obj = create_object(t_symbol);
-                obj->values.symbol.value = malloc(strlen(val) + 1);
-                if (obj->values.symbol.value == NULL)
+                obj->symbol.value = malloc(strlen(val) + 1);
+                if (obj->symbol.value == NULL)
                         die("Out of memory in create_symbol!\n");
-                strcpy(obj->values.symbol.value, val);
+                strcpy(obj->symbol.value, val);
 
                 /* Lazy initialization of symbol_table */
                 int i;
@@ -139,31 +139,31 @@ object_t *create_string(char *val)
 {
         object_t *obj = create_object(t_string);
 
-        obj->values.string.value = malloc(strlen(val) + 1);
-        if (obj->values.string.value == NULL)
+        obj->string.value = malloc(strlen(val) + 1);
+        if (obj->string.value == NULL)
                 die("Out of memory in create_string!\n");
 
-        strcpy(obj->values.string.value, val);
+        strcpy(obj->string.value, val);
         return obj;
 }
 
 object_t *create_cons(object_t *car, object_t *cdr)
 {
         object_t *obj = create_object(t_cons);
-        obj->values.cons.car = car;
-        obj->values.cons.cdr = cdr;
+        obj->cons.car = car;
+        obj->cons.cdr = cdr;
         return obj;
 }
 
 object_t *create_primitive(primitive p)
 {
         object_t *obj = create_object(t_primitive);
-        obj->values.primitive.function = p;
+        obj->primitive.function = p;
         return obj;
 }
 
-object_t *car(object_t *obj) { return obj->values.cons.car; }
-object_t *cdr(object_t *obj) { return obj->values.cons.cdr; }
+object_t *car(object_t *obj) { return obj->cons.car; }
+object_t *cdr(object_t *obj) { return obj->cons.cdr; }
 
 /* environments */
 
@@ -174,8 +174,8 @@ object_t *frame_vals(object_t *frame) { return cdr(frame); }
 
 void add_new_binding(object_t *variable, object_t *value, object_t *frame)
 {
-        frame->values.cons.car = create_cons(variable, car(frame));
-        frame->values.cons.cdr = create_cons(value, cdr(frame));
+        frame->cons.car = create_cons(variable, car(frame));
+        frame->cons.cdr = create_cons(value, cdr(frame));
 }
 
 object_t *find_variable_value(object_t *var, object_t *env)
@@ -219,7 +219,7 @@ void change_variable_value(object_t *var, object_t *val, object_t *env)
                 vals = frame_vals(frame);
                 while (vars != get_nil()) {
                         if (var == car(vars)) {
-                                vals->values.cons.car = val;
+                                vals->cons.car = val;
                                 return;
                         }
                         
@@ -241,7 +241,7 @@ void create_new_variable(object_t *var, object_t *val, object_t *env)
 
         while (vars != get_nil()) {
                 if (var == car(vars)) {
-                        vals->values.cons.car = val;
+                        vals->cons.car = val;
                         return;
                 }
                 
@@ -262,8 +262,8 @@ void initialize_types(void)
         define = create_symbol("define");
         lambda = create_symbol("lambda");
 
-        nil->values.cons.car = nil;
-        nil->values.cons.cdr = nil;
+        nil->cons.car = nil;
+        nil->cons.cdr = nil;
 
         empty_env = nil;
   
