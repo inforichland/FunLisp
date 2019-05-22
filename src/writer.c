@@ -14,6 +14,7 @@ void write_cons(object_t *obj)
 {
         object_t *car = obj->cons.car;
         object_t *cdr = obj->cons.cdr;
+
         write(car);
 
         if (nilp(cdr)) {

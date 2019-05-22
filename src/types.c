@@ -5,7 +5,7 @@
 
 static unsigned int MAX_SYMBOLS = 128;
 
-object_t *create_object(type_t type)
+static object_t *create_object(type_t type)
 {
         object_t *obj = malloc(object_size);
         if (obj == NULL)
@@ -16,18 +16,18 @@ object_t *create_object(type_t type)
 }
 
 /* static objects */
-object_t *true_obj, *false_obj;
-object_t *nil;
-object_t *quote;
-object_t *define;
-object_t *lambda;
-object_t **symbol_table;
+static object_t *true_obj, *false_obj;
+static object_t *nil;
+static object_t *quote;
+static object_t *define;
+static object_t *lambda;
+static object_t **symbol_table;
 
 /* environments */
-object_t *empty_env;
-object_t *global_env;
+static object_t *empty_env;
+static object_t *global_env;
 
-object_t *get_global_env(void) { return global_env; }
+static object_t *get_global_env(void) { return global_env; }
 
 #define is_p(name,obj) bool name(object_t *o) { return (o == obj); }
 
@@ -150,6 +150,7 @@ object_t *create_string(char *val)
 object_t *create_cons(object_t *car, object_t *cdr)
 {
         object_t *obj = create_object(t_cons);
+
         obj->cons.car = car;
         obj->cons.cdr = cdr;
         return obj;
@@ -257,13 +258,10 @@ void initialize_types(void)
 {
         false_obj = create_boolean(FALSE);
         true_obj = create_boolean(TRUE);
-        nil = create_cons(NULL,NULL);
+        nil = create_symbol("nil");
         quote = create_symbol("quote");
         define = create_symbol("define");
         lambda = create_symbol("lambda");
-
-        nil->cons.car = nil;
-        nil->cons.cdr = nil;
 
         empty_env = nil;
   

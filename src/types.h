@@ -78,15 +78,11 @@ bool falsep(object_t*);
 bool quotep(object_t*);
 bool definep(object_t*);
 
-extern object_t *false_obj;
-extern object_t *true_obj;
 object_t *get_nil(void);
 object_t *get_true(void);
 object_t *get_false(void);
 object_t *get_quote(void);
 object_t *get_define(void);
-
-object_t *get_global_env(void);
 
 #define object_size sizeof(object_t)
 
