@@ -3,18 +3,20 @@
 #include "types.h"
 #include "writer.h"
 
+/* http://home.pipeline.com/~hbaker1/LinearLisp.html  */
+
 enum ops {
-        op_swap,
-        op_car,
-        op_cdr,
-        op_nilp,
-        op_atomp,
-        op_eq,
-        op_assignsym,
-        op_assign,
-        op_cons,
-        op_push,
-        op_pop,
+	op_swap,	/* r1 <-> r2 */
+        op_car,		/* r1 <-> CAR(r2) */
+        op_cdr,		/* r1 <-> CDR(r2) */
+        op_nilp,	/* NULL(r1) */
+        op_atomp,	/* ATOM(r1) */
+        op_eq,		/* EQ(r1, r2) */
+        op_assignsym,	/* r1 := 'foo */
+        op_assign,	/* r1 := r2 */
+        op_cons,	/* r1 <-> CAR(fr);  r2 <-> fr;  fr <-> CDR(r2); r1 := NIL */
+        op_push,	/* CONS(r1,r2) */
+        op_pop,		/* if NULL(r1) & !ATOM(r2) then {fr <-> CDR(r2); r2 <-> fr; r1 <-> CAR(fr); } else die */
 };
 
 struct reg {
@@ -68,16 +70,21 @@ void execute(const struct instruction *i)
                 regs[i->swap.r2].value = tmp.value;
                 break;
         case op_assignsym:
-                printf("assigning %s to reg%d\n", i->assignsym.sym->symbol.value, i->assignsym.r1);
                 regs[i->assignsym.r1].value = i->assignsym.sym;
                 break;
         case op_car:
-                tmp.value = regs[i->car.r2].value;
+                tmp.value = regs[i->car.r1].value;
+		regs[i->car.r1].value = regs[i->car.r2].value->cons.car;
+		regs[i->car.r2].value->cons.car = tmp.value;
+                break;
+	case op_cdr:
+                tmp.value = regs[i->cdr.r1].value;
+		regs[i->cdr.r1].value = regs[i->cdr.r2].value->cons.cdr;
+		regs[i->cdr.r2].value->cons.cdr = tmp.value;
                 break;
         case op_cons:
                 o1 = regs[i->cons.r1].value;
                 o2 = regs[i->cons.r2].value;
-                printf("**o1 = %p, o2 = %p\n", o1, o2);
                 regs[i->cons.r2].value = create_cons(o1, o2);
                 regs[i->cons.r1].value = get_nil();
                 break;
@@ -86,37 +93,49 @@ void execute(const struct instruction *i)
         }
 }
 
-/* gcc -std=gnu11 vm.c writer.c types.c -g*/
+/* gcc -std=gnu11 vm.c writer.c types.c -g */
 #define ASSIGNSYM(r_, sym_) { .op = op_assignsym, .assignsym.r1 = (r_), .assignsym.sym = (sym_) }
 #define SWAP(r1_, r2_) { .op = op_swap, .swap.r1 = (r1_), .swap.r2 = (r2_) }
 #define CAR(r1_, r2_) { .op = op_car, .car.r1 = (r1_), .car.r2 = (r2_) }
+#define CDR(r1_, r2_) { .op = op_cdr, .cdr.r1 = (r1_), .cdr.r2 = (r2_) }
 #define CONS(r1_, r2_) { .op = op_cons, .cons.r1 = (r1_), .cons.r2 = (r2_) }
 int main(void)
 {
         initialize_types();
 
+	for (int i = 0; i < REG_COUNT; ++i)
+		regs[i].value = get_nil();
+	
         object_t *foo = create_symbol("foo");
         object_t *bar = create_symbol("bar");
-        object_t *swizzle = create_symbol("swizzle");
+        object_t *quux = create_symbol("quux");
 
         struct instruction ops[] = {
                 [0] = ASSIGNSYM(reg0, foo),
                 [1] = ASSIGNSYM(reg1, bar),
                 [2] = SWAP(reg0, reg1),
                 [3] = ASSIGNSYM(reg3, get_nil()),
-                [4] = ASSIGNSYM(reg2, swizzle),
+                [4] = ASSIGNSYM(reg2, quux),
                 [5] = CONS(reg2, reg3),
+		[6] = CONS(reg1, reg3),
+		[7] = CONS(reg0, reg3),
+		[8] = CAR(reg0, reg3),
+		[9] = CDR(reg1, reg3),
+		[10] = CDR(reg2, reg1),
         };
 
-        for (int i = 0; i < 6; ++i) {
+        for (int i = 0; i < 9; ++i) {
                 execute(&ops[i]);
         }
 
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < REG_COUNT; ++i) {
                 printf("reg%d: ", i);
                 write(regs[i].value);
                 printf("\n");
         }
 
         cleanup_types();
+	free(foo);
+	free(bar);
+	free(quux);
 }

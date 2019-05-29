@@ -30,23 +30,19 @@ static object_t *global_env;
 static object_t *get_global_env(void) { return global_env; }
 
 #define is_p(name,obj) bool name(object_t *o) { return (o == obj); }
-
 is_p(nilp,nil);
 is_p(truep,true_obj);
 is_p(falsep,false_obj);
 is_p(quotep,quote);
 is_p(definep,define);
-
 #undef is_p
 
 #define get_obj(name,obj) object_t *name(void) { return obj; }
-
 get_obj(get_nil,nil);
 get_obj(get_true,true_obj);
 get_obj(get_false,false_obj);
 get_obj(get_quote,quote);
 get_obj(get_define,define);
-
 #undef get_obj
 
 object_t *create_fixnum(long val)
@@ -258,7 +254,7 @@ void initialize_types(void)
 {
         false_obj = create_boolean(FALSE);
         true_obj = create_boolean(TRUE);
-        nil = create_symbol("nil");
+        nil = create_object(t_nil);
         quote = create_symbol("quote");
         define = create_symbol("define");
         lambda = create_symbol("lambda");

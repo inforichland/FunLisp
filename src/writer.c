@@ -31,6 +31,9 @@ void write_cons(object_t *obj)
 void write(object_t *obj)
 {
         switch (obj->type) {
+	case t_nil:
+		printf("nil");
+		break;
         case t_fixnum:
                 printf("%ld", obj->fixnum.value);
                 break;
@@ -78,7 +81,7 @@ void write(object_t *obj)
                 printf("<primitive>");
                 break;
         default:
-                fprintf(stderr, "Unknown type (can't write) (type: %d)", obj->type);
+                fprintf(stderr, "Unknown type (can't write) (type: %d)\n", obj->type);
                 exit(1);
         }
 }

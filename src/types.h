@@ -13,6 +13,7 @@ typedef char bool;
 
 typedef enum
 {
+	t_nil,
         t_fixnum,
         t_character,
         t_boolean,
@@ -28,6 +29,7 @@ typedef struct object_t
         type_t type;
         union
         {
+		struct { } nil;
                 struct { long value; } fixnum;
                 struct { char value; } character;
                 struct { bool value; } boolean;
@@ -65,6 +67,7 @@ object_t *cdr(object_t*);
 
 void make_primitive(object_t*, primitive);
 
+#define is_nil(val)       ((val)->type == t_nil)
 #define is_fixnum(val)    ((val)->type == t_fixnum)
 #define is_boolean(val)   ((val)->type == t_boolean)
 #define is_character(val) ((val)->type == t_character)
